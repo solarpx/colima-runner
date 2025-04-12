@@ -39,20 +39,16 @@ start_colima() {
 }
 
 stop_colima() {
-    echo "🛑 Stopping Colima and cleaning up..."
+    echo "🛑 Stopping Colima..."
     
     # Graceful stop (ignore errors if already stopped)
     colima stop 2>/dev/null || true
     
-    # Remove docker context
-    docker context rm -f colima 2>/dev/null || true
-    
     # Verify shutdown
     if colima status 2>/dev/null | grep -q "Running"; then
-        echo "❌ Failed to stop Colima! Try manual cleanup:"
-        echo "   colima delete -f"
+        echo "❌ Failed to stop Colima!"
     else
-        echo "✅ Colima fully stopped and cleaned up"
+        echo "✅ Colima stopped successfully"
     fi
 }
 
