@@ -11,13 +11,16 @@ CPU=4                 # Optimal cores to avoid throttling
 MEMORY=6              # 6GB RAM (balanced for Docker + macOS)
 DISK=30               # 30GB storage
 MOUNT_TYPE="virtiofs" # Fastest (fallback to 9p if needed)
-VM_TYPE="vz"          # Native virtualization (best performance)
+VM_TYPE="vz"         # Native virtualization (best performance)
+
+clean_colima() {
+    echo "🧹 Performing complete cleanup..."
+    colima delete -f 2>/dev/null || true
+    echo "✅ Colima instance deleted. Use 'start' to create fresh instance."
+}
 
 start_colima() {
     echo "🚀 Starting Colima (Apple Silicon optimized)..."
-    
-    # Force cleanup and start fresh
-    colima delete -f 2>/dev/null || true
     
     echo "⚙️  Configuration:"
     echo "  - Arch: $ARCH, Cores: $CPU, RAM: ${MEMORY}GB"
@@ -41,9 +44,7 @@ stop_colima() {
     # Graceful stop (ignore errors if already stopped)
     colima stop 2>/dev/null || true
     
-    # Deep cleanup
-    echo "🧹 Removing residual files..."
-    rm -f ~/.colima/docker.sock 2>/dev/null
+    # Remove docker context
     docker context rm -f colima 2>/dev/null || true
     
     # Verify shutdown
@@ -67,5 +68,7 @@ verify_colima() {
 case "$1" in
     start)   start_colima ;;
     stop)    stop_colima ;;
-    *)       echo "Usage: $0 {start|stop}"; exit 1 ;;
+    clean)   clean_colima ;;
+    *)       echo "Usage: $0 {start|stop|clean}"; exit 1 ;;
 esac
+
